@@ -1,12 +1,43 @@
-import actionFunction from "./action";
-import loaderFunction from "./laoder";
 import { Form, useLoaderData } from "@remix-run/react";
 
-export const loader = loaderFunction;
-export const action = actionFunction;
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import prisma from "~/db.server";
+
+export async function loader({ params }: LoaderFunctionArgs) {
+  const anime = await prisma.anime.findUnique({
+    where: {
+      id: +(params.id || 0),
+    },
+    select: {
+      episodes: true,
+      title: true,
+      id: true,
+    },
+  });
+
+  if (!anime) throw new Response("Not found", { status: 404 });
+
+  return anime;
+}
+
+export async function action({ request, params }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const formJson = Object.fromEntries(formData.entries());
+
+  const episode = await prisma.episode.create({
+    data: {
+      position: +formJson.position,
+      season: +formJson.season,
+      fileId: formJson.fileId.toString(),
+      animeId: +(params.id || 0),
+    },
+  });
+
+  return episode;
+}
 
 export default function Anime() {
-  const anime = useLoaderData<typeof loaderFunction>();
+  const anime = useLoaderData<typeof loader>();
   return (
     <div className="h-screen flex flex-col items-center justify-center gap-3">
       <div>Title: {anime.title}</div>
