@@ -1,0 +1,13 @@
+-- CreateTable
+CREATE TABLE "Anime" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "title" TEXT NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "Episode" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "animeId" INTEGER NOT NULL,
+    "fileId" TEXT NOT NULL,
+    CONSTRAINT "Episode_animeId_fkey" FOREIGN KEY ("animeId") REFERENCES "Anime" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
